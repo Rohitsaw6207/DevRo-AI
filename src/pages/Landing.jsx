@@ -47,7 +47,7 @@ export default function Landing() {
       <Navbar />
 
       {/* HERO */}
-      <section className="relative px-6 pt-24 pb-16">
+      <section className="relative px-6 pt-36 pb-32">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-14 items-center">
 
           {/* LEFT */}
@@ -57,13 +57,13 @@ export default function Landing() {
             transition={{ duration: 0.6 }}
             className="text-center lg:text-left"
           >
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold leading-tight mb-5">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight mb-5">
               Turn ideas into
               <br />
               <span className="text-neutral-400">real project code</span>
             </h1>
 
-            <p className="text-neutral-300 text-lg max-w-xl mx-auto lg:mx-0 mb-6">
+            <p className="text-neutral-300 text-base max-w-xl mx-auto lg:mx-0 mb-6">
               DevRo AI converts plain-language prompts into structured React projects —
               complete with folders, files, and code you can confidently ship.
             </p>
@@ -80,18 +80,64 @@ export default function Landing() {
             </div>
           </motion.div>
 
-          {/* RIGHT — IMAGE (md+) */}
+          {/* RIGHT — FLOATING APP MOCKUP (md+) */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="hidden md:block"
+            className="relative hidden md:flex justify-center"
           >
-            <img
-              src="/product-preview.png"
-              alt="DevRo AI preview"
-              className="rounded-xl shadow-2xl"
-            />
+            <motion.div
+              animate={{ y: [0, -12, 0] }}
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                ease: 'easeInOut'
+              }}
+              className="relative"
+            >
+              {/* DESKTOP MOCKUP */}
+              <div className="w-[440px] rounded-2xl bg-neutral-900 border border-neutral-800 shadow-2xl overflow-hidden">
+                <div className="flex items-center gap-2 px-4 py-3 border-b border-neutral-800 bg-neutral-900">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                </div>
+
+                <div className="p-6 h-[280px] bg-gradient-to-br from-neutral-900 to-neutral-800 flex items-center justify-center">
+                  <div className="text-center">
+                    <FolderTree className="w-12 h-12 text-neutral-500 mx-auto mb-3" />
+                    <p className="text-sm text-neutral-400">
+                      Your App Preview
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* MOBILE MOCKUP */}
+              <motion.div
+                animate={{ y: [0, -8, 0] }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                  delay: 1
+                }}
+                className="absolute -bottom-10 -left-16 w-44"
+              >
+                <div className="rounded-3xl bg-neutral-900 border border-neutral-800 shadow-2xl overflow-hidden">
+                  <div className="h-6 bg-neutral-800 flex items-center justify-center">
+                    <div className="w-14 h-1.5 rounded-full bg-neutral-700" />
+                  </div>
+
+                  <div className="p-4 h-[180px] bg-gradient-to-b from-neutral-900 to-neutral-800 flex items-center justify-center">
+                    <Sparkles className="w-6 h-6 text-neutral-500" />
+                  </div>
+
+                  <div className="h-4 bg-neutral-900" />
+                </div>
+              </motion.div>
+            </motion.div>
           </motion.div>
 
         </div>
@@ -125,7 +171,6 @@ export default function Landing() {
       <section className="px-6 py-16 border-t border-neutral-900">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-14 items-center">
 
-          {/* LEFT */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -153,7 +198,6 @@ export default function Landing() {
             </motion.button>
           </motion.div>
 
-          {/* RIGHT — IMAGE (md+) */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
