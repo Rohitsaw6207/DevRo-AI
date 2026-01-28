@@ -1,12 +1,25 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { User } from 'lucide-react'
 
+import { useAuth } from '../../context/AuthContext'
 import logo from '../../assets/devro-logo.svg'
 
 const Navbar = () => {
-  // TEMP auth state (replace with Firebase later)
-  const isAuthenticated = false
+  const navigate = useNavigate()
+  const { isAuthenticated, profile } = useAuth()
+
+  const getAvatar = () => {
+    if (!profile || profile.gender === 'unspecified') {
+      return '/avatars/default-avatar.png'
+    }
+    if (profile.gender === 'male') {
+      return '/avatars/male-avatar.png'
+    }
+    if (profile.gender === 'female') {
+      return '/avatars/female-avatar.png'
+    }
+    return '/avatars/default-avatar.png'
+  }
 
   return (
     <motion.nav
@@ -19,48 +32,51 @@ const Navbar = () => {
         <div className="h-16 flex items-center justify-between">
 
           {/* LEFT — LOGO */}
-          <Link to="/" className="flex items-center">
+          <button
+            onClick={() => navigate(isAuthenticated ? '/coding' : '/')}
+            className="flex items-center"
+          >
             <motion.img
               src={logo}
               alt="DevRo AI"
               className="h-9"
               whileHover={{ scale: 1.04 }}
             />
-          </Link>
+          </button>
 
           {/* RIGHT — AUTH ACTIONS */}
-          <div className="flex items-center gap-3">
-            {!isAuthenticated ? (
-              <>
-                <Link to="/login">
-                  <button className="px-4 py-2 text-sm text-neutral-300 hover:text-neutral-100 transition">
-                    Login
-                  </button>
-                </Link>
+          {!isAuthenticated ? (
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate('/login')}
+                className="px-4 py-2 text-sm text-neutral-300 hover:text-neutral-100 transition"
+              >
+                Login
+              </button>
 
-                <Link to="/signup">
-                  <motion.button
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="px-4 py-2 rounded-md bg-neutral-100 text-neutral-900 text-sm font-medium"
-                  >
-                    Sign up
-                  </motion.button>
-                </Link>
-              </>
-            ) : (
-              <Link to="/profile">
-                <motion.button
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-md bg-neutral-100 text-neutral-900 text-sm font-medium"
-                >
-                  <User size={16} />
-                  Profile
-                </motion.button>
-              </Link>
-            )}
-          </div>
+              <motion.button
+                onClick={() => navigate('/signup')}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+                className="px-4 py-2 rounded-md bg-neutral-100 text-neutral-900 text-sm font-medium"
+              >
+                Sign up
+              </motion.button>
+            </div>
+          ) : (
+            <button
+              onClick={() => navigate('/profile')}
+              className="flex items-center"
+            >
+              <motion.img
+                src={getAvatar()}
+                alt="Profile"
+                whileHover={{ scale: 1.05 }}
+                className="w-9 h-9 rounded-full border border-neutral-700 hover:border-neutral-500 transition"
+              />
+            </button>
+          )}
+
         </div>
       </div>
     </motion.nav>
