@@ -3,12 +3,12 @@ import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyD33P5i4oyKv94F0OhcWeldqTJ1zkOKt7k',
-  authDomain: 'hitro-dev.firebaseapp.com',
-  projectId: 'hitro-dev',
-  storageBucket: 'hitro-dev.appspot.com',
-  messagingSenderId: '743160595391',
-  appId: '1:743160595391:web:5769cf16b38448b4b3970a'
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 }
 
 // Initialize Firebase
