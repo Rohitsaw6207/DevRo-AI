@@ -1,12 +1,27 @@
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { LogOut } from 'lucide-react'
 
 import { useAuth } from '../../context/AuthContext'
 import logo from '../../assets/devro-logo.svg'
 
 const Navbar = () => {
   const navigate = useNavigate()
-  const { isAuthenticated, profile } = useAuth()
+  const { isAuthenticated, profile, logout } = useAuth()
+
+  // ✅ FIXED LOGO LOGIC
+  const handleLogoClick = () => {
+    if (isAuthenticated) {
+      navigate('/home')
+    } else {
+      navigate('/')
+    }
+  }
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/')
+  }
 
   const getAvatar = () => {
     if (!profile || profile.gender === 'unspecified') {
@@ -26,25 +41,53 @@ const Navbar = () => {
       initial={{ y: -80 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.4 }}
-      className="fixed top-0 left-0 right-0 z-50 bg-neutral-950/80 backdrop-blur border-b border-neutral-900"
+      className="
+        fixed top-0 left-0 right-0 z-50
+        bg-neutral-950/80 backdrop-blur
+        border-b border-neutral-900
+        py-3
+      "
     >
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="h-16 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex items-center justify-between">
 
           {/* LEFT — LOGO */}
-          <button
-            onClick={() => navigate(isAuthenticated ? '/coding' : '/')}
-            className="flex items-center"
+          <motion.div
+            onClick={handleLogoClick}
+            initial="rest"
+            whileHover="hover"
+            animate="rest"
+            className="relative cursor-pointer"
           >
+            {/* Glow */}
+            <motion.div
+              variants={{
+                rest: { opacity: 0, scale: 0.9 },
+                hover: { opacity: 0.25, scale: 1.2 }
+              }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              className="
+                absolute inset-0 -z-10
+                rounded-full
+                bg-neutral-500
+                blur-xl
+              "
+            />
+
+            {/* Logo */}
             <motion.img
               src={logo}
               alt="DevRo AI"
-              className="h-9"
-              whileHover={{ scale: 1.04 }}
+              variants={{
+                rest: { scale: 1 },
+                hover: { scale: 1.06 }
+              }}
+              transition={{ type: 'spring', stiffness: 260 }}
+              className="h-10 relative z-10"
             />
-          </button>
+          </motion.div>
 
-          {/* RIGHT — AUTH ACTIONS */}
+          {/* RIGHT — AUTH */}
           {!isAuthenticated ? (
             <div className="flex items-center gap-3">
               <button
@@ -64,17 +107,42 @@ const Navbar = () => {
               </motion.button>
             </div>
           ) : (
-            <button
-              onClick={() => navigate('/profile')}
-              className="flex items-center"
-            >
-              <motion.img
-                src={getAvatar()}
-                alt="Profile"
-                whileHover={{ scale: 1.05 }}
-                className="w-9 h-9 rounded-full border border-neutral-700 hover:border-neutral-500 transition"
-              />
-            </button>
+            <div className="flex items-center gap-4">
+              {/* Logout */}
+              <button
+                onClick={handleLogout}
+                className="
+                  px-3 py-1 rounded-md
+                  border border-neutral-800
+                  text-neutral-400
+                  hover:text-neutral-100
+                  hover:border-neutral-600
+                  hover:bg-neutral-900
+                  transition
+                  flex items-center gap-1.5
+                "
+              >
+                <LogOut size={14} />
+                Logout
+              </button>
+
+              {/* Avatar */}
+              <button onClick={() => navigate('/profile')}>
+                <motion.img
+                  src={getAvatar()}
+                  alt="Profile"
+                  whileHover={{ scale: 1.08 }}
+                  className="
+                    w-11 h-11
+                    rounded-full
+                    border border-neutral-700
+                    hover:border-neutral-500
+                    transition
+                    object-cover
+                  "
+                />
+              </button>
+            </div>
           )}
 
         </div>

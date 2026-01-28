@@ -1,11 +1,10 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
 
-import { auth } from '../firebase/firebase'
-import { db } from '../firebase/firebase'
+import { auth, db } from '../firebase/firebase'
 
-const AuthContext = createContext(null)
+export const AuthContext = createContext(null)
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
@@ -17,15 +16,10 @@ export const AuthProvider = ({ children }) => {
       if (firebaseUser) {
         setUser(firebaseUser)
 
-        // Fetch Firestore profile
         const ref = doc(db, 'users', firebaseUser.uid)
         const snap = await getDoc(ref)
 
-        if (snap.exists()) {
-          setProfile(snap.data())
-        } else {
-          setProfile(null)
-        }
+        setProfile(snap.exists() ? snap.data() : null)
       } else {
         setUser(null)
         setProfile(null)
@@ -37,13 +31,18 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe()
   }, [])
 
+  const logout = async () => {
+    await signOut(auth)
+  }
+
   return (
     <AuthContext.Provider
       value={{
         user,
         profile,
         isAuthenticated: !!user,
-        loading
+        loading,
+        logout
       }}
     >
       {children}
@@ -51,6 +50,4 @@ export const AuthProvider = ({ children }) => {
   )
 }
 
-export const useAuth = () => {
-  return useContext(AuthContext)
-}
+export const useAuth = () => useContext(AuthContext)
