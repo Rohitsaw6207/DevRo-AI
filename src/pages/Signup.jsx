@@ -6,9 +6,10 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from 'firebase/auth'
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 
-import { auth, db } from '../firebase/firebase'
+import { auth } from '../firebase/firebase'
+import { createUserDocument } from '../firebase/firestore'
+
 import Navbar from '../components/layout/Navbar'
 import Footer from '../components/layout/Footer'
 
@@ -23,19 +24,6 @@ export default function Signup() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const createUserDoc = async (user, extra = {}) => {
-    await setDoc(doc(db, 'users', user.uid), {
-      uid: user.uid,
-      name,
-      email: user.email,
-      gender,
-      isPro: false,
-      usageLimit: 3,
-      createdAt: serverTimestamp(),
-      ...extra
-    })
-  }
-
   const handleSignup = async () => {
     if (!agree) {
       setError('You must agree to the privacy policy')
@@ -45,8 +33,18 @@ export default function Signup() {
     try {
       setLoading(true)
       setError('')
-      const res = await createUserWithEmailAndPassword(auth, email, password)
-      await createUserDoc(res.user)
+
+      const res = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
+
+      await createUserDocument(res.user, {
+        name,
+        gender
+      })
+
       navigate('/home')
     } catch {
       setError('Failed to create account')
@@ -65,7 +63,7 @@ export default function Signup() {
       const provider = new GoogleAuthProvider()
       const res = await signInWithPopup(auth, provider)
 
-      await createUserDoc(res.user, {
+      await createUserDocument(res.user, {
         name: res.user.displayName || 'User',
         gender: 'unspecified'
       })
