@@ -1,8 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { onAuthStateChanged, signOut } from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore'
-
-import { auth, db } from '../firebase/firebase'
+import { listenToAuthChanges, logoutUser } from '../firebase/auth'
+import { getUserProfile } from '../firebase/firestore'
 
 export const AuthContext = createContext(null)
 
@@ -12,14 +10,12 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = listenToAuthChanges(async (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser)
 
-        const ref = doc(db, 'users', firebaseUser.uid)
-        const snap = await getDoc(ref)
-
-        setProfile(snap.exists() ? snap.data() : null)
+        const profileData = await getUserProfile(firebaseUser.uid)
+        setProfile(profileData)
       } else {
         setUser(null)
         setProfile(null)
@@ -32,7 +28,7 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   const logout = async () => {
-    await signOut(auth)
+    await logoutUser()
   }
 
   return (
