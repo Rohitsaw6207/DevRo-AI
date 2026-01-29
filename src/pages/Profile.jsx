@@ -39,8 +39,8 @@ export default function Profile() {
             mx-auto
             w-full
             max-w-sm
-            md:max-w-xl
-            lg:max-w-2xl
+            md:max-w-lg
+            lg:max-w-xl
             bg-neutral-900
             border border-neutral-800
             rounded-2xl
@@ -114,9 +114,14 @@ export default function Profile() {
                 )}
               </div>
 
+              <div className="flex justify-between border-b border-neutral-800 pb-2">
+                <span className="text-neutral-400">Today’s tokens left</span>
+                <span>{profile?.usage?.dailyRemaining ?? 0}</span>
+              </div>
+
               <div className="flex justify-between">
-                <span className="text-neutral-400">Usage left</span>
-                <span>{profile?.usageLimit ?? 0}</span>
+                <span className="text-neutral-400">Total tokens used</span>
+                <span>{profile?.usage?.lifetimeTotal ?? 0}</span>
               </div>
             </div>
           </div>

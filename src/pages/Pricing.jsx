@@ -3,8 +3,11 @@ import { FiCheck } from 'react-icons/fi'
 
 import Navbar from '../components/layout/Navbar'
 import Footer from '../components/layout/Footer'
+import { useAuth } from '../context/AuthContext'
 
 const Pricing = () => {
+  const { profile } = useAuth()
+
   const plans = [
     {
       name: 'Free',
@@ -12,13 +15,15 @@ const Pricing = () => {
       period: 'forever',
       description: 'For exploring DevRo AI',
       features: [
-        '5 projects per month',
+        '15 tokens per month',
+        '3 tokens per day',
+        'HTML projects only',
         'Basic code generation',
-        'Standard preview',
         'ZIP downloads',
         'Community support'
       ],
-      cta: 'Start Free'
+      cta: 'Start Free',
+      isProPlan: false
     },
     {
       name: 'Pro',
@@ -26,13 +31,15 @@ const Pricing = () => {
       period: 'per month',
       description: 'For serious builders',
       features: [
-        'Unlimited projects',
+        'Unlimited tokens',
+        'HTML + React projects',
         'Advanced code generation',
         'Full file structure',
         'Priority support',
         'Future feature access'
       ],
-      cta: 'Upgrade to Pro'
+      cta: profile?.isPro ? 'Start using' : 'Upgrade to Pro',
+      isProPlan: true
     }
   ]
 
@@ -98,7 +105,16 @@ const Pricing = () => {
               </ul>
 
               <button
-                className="w-full py-2.5 rounded-md bg-neutral-100 text-neutral-900 font-medium hover:bg-white transition"
+                className="
+                  w-full
+                  py-2.5
+                  rounded-md
+                  bg-neutral-100
+                  text-neutral-900
+                  font-medium
+                  hover:bg-white
+                  transition
+                "
               >
                 {plan.cta}
               </button>
@@ -110,7 +126,7 @@ const Pricing = () => {
       {/* FAQ */}
       <section className="px-6 pb-12 border-t border-neutral-900">
         <div className="max-w-3xl mx-auto pt-12">
-          <h2 className="text-2xl font-semibold text-centernter mb-8 text-center">
+          <h2 className="text-2xl font-semibold mb-8 text-center">
             Frequently asked questions
           </h2>
 

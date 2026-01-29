@@ -108,6 +108,23 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="flex items-center gap-4">
+
+              {/* UPGRADE PLAN */}
+              <button
+                onClick={() => navigate('/pricing')}
+                className="
+                  px-3 py-1 rounded-md
+                  border border-neutral-800
+                  text-neutral-400
+                  hover:text-neutral-100
+                  hover:border-neutral-600
+                  hover:bg-neutral-900
+                  transition
+                "
+              >
+                Upgrade Plan
+              </button>
+
               {/* Logout */}
               <button
                 onClick={handleLogout}
