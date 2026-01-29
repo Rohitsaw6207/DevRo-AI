@@ -18,7 +18,6 @@ export default function Signup() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [gender, setGender] = useState('male')
   const [agree, setAgree] = useState(false)
   const [error, setError] = useState('')
@@ -40,11 +39,6 @@ export default function Signup() {
   const handleSignup = async () => {
     if (!agree) {
       setError('You must agree to the privacy policy')
-      return
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match')
       return
     }
 
