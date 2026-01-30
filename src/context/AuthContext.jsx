@@ -27,6 +27,13 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe()
   }, [])
 
+  // ✅ FORCE PROFILE REFRESH (used after payment, future upgrades, etc.)
+  const refreshProfile = async (uid) => {
+    if (!uid) return
+    const profileData = await getUserProfile(uid)
+    setProfile(profileData)
+  }
+
   const logout = async () => {
     await logoutUser()
   }
@@ -38,7 +45,8 @@ export const AuthProvider = ({ children }) => {
         profile,
         isAuthenticated: !!user,
         loading,
-        logout
+        logout,
+        refreshProfile
       }}
     >
       {children}

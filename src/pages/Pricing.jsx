@@ -1,12 +1,44 @@
 import { motion } from 'framer-motion'
 import { FiCheck } from 'react-icons/fi'
+import { useNavigate } from 'react-router-dom'
 
 import Navbar from '../components/layout/Navbar'
 import Footer from '../components/layout/Footer'
 import { useAuth } from '../context/AuthContext'
+import { openRazorpayCheckout } from '../services/razorpayService'
+import { activateProSubscription } from '../firebase/firestore'
 
 const Pricing = () => {
-  const { profile } = useAuth()
+  const { user, profile, refreshProfile } = useAuth()
+  const navigate = useNavigate()
+
+  const handleUpgrade = async () => {
+    if (!user) {
+      navigate('/signup')
+      return
+    }
+
+    try {
+      await openRazorpayCheckout({
+        amount: 34900, // ₹349 in paise
+        user,
+        onSuccess: async () => {
+          // ✅ SINGLE SOURCE OF TRUTH
+          await activateProSubscription(user.uid)
+
+          // ✅ REFRESH PROFILE STATE
+          await refreshProfile(user.uid)
+
+          navigate('/home')
+        },
+        onFailure: () => {
+          // stay on pricing page
+        }
+      })
+    } catch (err) {
+      console.error('Razorpay error:', err)
+    }
+  }
 
   const plans = [
     {
@@ -23,7 +55,7 @@ const Pricing = () => {
         'Community support'
       ],
       cta: 'Start Free',
-      isProPlan: false
+      action: () => navigate('/signup')
     },
     {
       name: 'Pro',
@@ -39,7 +71,7 @@ const Pricing = () => {
         'Future feature access'
       ],
       cta: profile?.isPro ? 'Start using' : 'Upgrade to Pro',
-      isProPlan: true
+      action: profile?.isPro ? () => navigate('/home') : handleUpgrade
     }
   ]
 
@@ -105,6 +137,7 @@ const Pricing = () => {
               </ul>
 
               <button
+                onClick={plan.action}
                 className="
                   w-full
                   py-2.5

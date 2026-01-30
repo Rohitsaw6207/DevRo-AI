@@ -18,6 +18,17 @@ export default function Profile() {
         })
       : '—'
 
+  // -------- PRO EXPIRY DATE --------
+  const proExpiresAt =
+    profile?.subscription?.expiresAt &&
+    typeof profile.subscription.expiresAt.toDate === 'function'
+      ? profile.subscription.expiresAt.toDate().toLocaleDateString('en-IN', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })
+      : '—'
+
   // -------- AVATAR LOGIC --------
   const getAvatar = () => {
     if (profile?.avatar) return profile.avatar
@@ -113,6 +124,13 @@ export default function Profile() {
                   </Link>
                 )}
               </div>
+
+              {profile?.isPro && (
+                <div className="flex justify-between border-b border-neutral-800 pb-2">
+                  <span className="text-neutral-400">Pro expires on</span>
+                  <span>{proExpiresAt}</span>
+                </div>
+              )}
 
               <div className="flex justify-between border-b border-neutral-800 pb-2">
                 <span className="text-neutral-400">Today’s tokens left</span>
