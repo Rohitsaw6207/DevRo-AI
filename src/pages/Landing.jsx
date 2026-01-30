@@ -4,6 +4,7 @@ import { Code2, FolderTree, Download, Sparkles } from 'lucide-react'
 
 import Navbar from '../components/layout/Navbar'
 import Pricing from './Pricing'
+import { useAuth } from '../context/AuthContext'   // ✅ ADDED
 
 const features = [
   {
@@ -30,15 +31,13 @@ const features = [
 
 export default function Landing() {
   const navigate = useNavigate()
-
-  // TEMP auth flag — replace later
-  const isAuthenticated = false
+  const { isAuthenticated } = useAuth()   // ✅ REAL AUTH STATE
 
   const handleStart = () => {
     if (isAuthenticated) {
-      navigate('/coding')
+      navigate('/home')      // ✅ logged-in users
     } else {
-      navigate('/signup')
+      navigate('/signup')    // ✅ logged-out users
     }
   }
 
