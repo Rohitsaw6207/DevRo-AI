@@ -8,8 +8,12 @@ import {
   Timestamp
 } from 'firebase/firestore'
 
+/* =========================
+   DATE HELPERS
+========================= */
+
 /**
- * Get next local midnight
+ * Next local midnight
  */
 function getNextMidnight() {
   const now = new Date()
@@ -20,8 +24,19 @@ function getNextMidnight() {
 }
 
 /**
- * Create user document on signup
+ * First day of next month (local)
  */
+function getNextMonthStart() {
+  const now = new Date()
+  const next = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+  next.setHours(0, 0, 0, 0)
+  return Timestamp.fromDate(next)
+}
+
+/* =========================
+   USER CREATION
+========================= */
+
 export const createUserDocument = async (user, { name, gender }) => {
   const ref = doc(db, 'users', user.uid)
   const snap = await getDoc(ref)
@@ -38,6 +53,10 @@ export const createUserDocument = async (user, { name, gender }) => {
     usage: {
       dailyRemaining: 3,
       dailyResetAt: getNextMidnight(),
+
+      monthlyRemaining: 15,
+      monthlyResetAt: getNextMonthStart(),
+
       lifetimeTotal: 0
     },
 
@@ -45,9 +64,10 @@ export const createUserDocument = async (user, { name, gender }) => {
   })
 }
 
-/**
- * Get user profile + auto reset daily usage
- */
+/* =========================
+   PROFILE FETCH + AUTO RESET
+========================= */
+
 export const getUserProfile = async (uid) => {
   const ref = doc(db, 'users', uid)
   const snap = await getDoc(ref)
@@ -57,40 +77,73 @@ export const getUserProfile = async (uid) => {
   const data = snap.data()
   const now = Timestamp.now()
 
-  if (
-    data.usage &&
-    now.seconds >= data.usage.dailyResetAt.seconds
-  ) {
-    const updatedUsage = {
-      dailyRemaining: 3,
-      dailyResetAt: getNextMidnight(),
-      lifetimeTotal: data.usage.lifetimeTotal || 0
-    }
+  let usage = data.usage || {}
+  let updated = false
 
-    await updateDoc(ref, { usage: updatedUsage })
-    return { ...data, usage: updatedUsage }
+  // ---- DAILY RESET ----
+  if (!usage.dailyResetAt || now.seconds >= usage.dailyResetAt.seconds) {
+    usage.dailyRemaining = 3
+    usage.dailyResetAt = getNextMidnight()
+    updated = true
+  }
+
+  // ---- MONTHLY RESET (FREE USERS ONLY) ----
+  if (!data.isPro) {
+    if (
+      !usage.monthlyResetAt ||
+      now.seconds >= usage.monthlyResetAt.seconds
+    ) {
+      usage.monthlyRemaining = 15
+      usage.monthlyResetAt = getNextMonthStart()
+      updated = true
+    }
+  }
+
+  // ---- LIFETIME SAFETY ----
+  if (typeof usage.lifetimeTotal !== 'number') {
+    usage.lifetimeTotal = 0
+    updated = true
+  }
+
+  if (updated) {
+    await updateDoc(ref, { usage })
+    return { ...data, usage }
   }
 
   return data
 }
 
-/**
- * Consume one generation (call ONLY on success)
- */
+/* =========================
+   CONSUME TOKEN (ON SUCCESS)
+========================= */
+
 export const consumeUsage = async (uid) => {
   const ref = doc(db, 'users', uid)
   const snap = await getDoc(ref)
 
   if (!snap.exists()) throw new Error('User not found')
 
-  const { usage } = snap.data()
+  const data = snap.data()
+  const usage = data.usage
 
+  // ---- DAILY CHECK ----
   if (usage.dailyRemaining <= 0) {
     throw new Error('Daily limit reached')
   }
 
-  await updateDoc(ref, {
+  // ---- MONTHLY CHECK (FREE USERS ONLY) ----
+  if (!data.isPro && usage.monthlyRemaining <= 0) {
+    throw new Error('Monthly limit reached')
+  }
+
+  const updates = {
     'usage.dailyRemaining': usage.dailyRemaining - 1,
     'usage.lifetimeTotal': usage.lifetimeTotal + 1
-  })
+  }
+
+  if (!data.isPro) {
+    updates['usage.monthlyRemaining'] = usage.monthlyRemaining - 1
+  }
+
+  await updateDoc(ref, updates)
 }
