@@ -34,6 +34,18 @@ export default function Home() {
     setStack(value)
   }
 
+  // ✅ PROMPT TRANSFER LOGIC
+  const handleGenerate = () => {
+    if (!prompt.trim()) return
+
+    navigate('/coding', {
+      state: {
+        prompt,
+        stack
+      }
+    })
+  }
+
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col">
       <Navbar />
@@ -126,8 +138,8 @@ export default function Home() {
               onChange={e => setPrompt(e.target.value)}
               placeholder={
                 stack === 'react'
-                  ? 'Build me a React dashboard with authentication...'
-                  : 'Build me a responsive HTML landing page...'
+                  ? 'Describe the React app in detail: components, state management, user interactions, layout structure, data flow, and expected behavior...'
+                  : 'Describe the website in detail: layout sections, responsiveness, styling, animations, JavaScript interactions, and overall user experience...'
               }
               rows={5}
               className="
@@ -146,6 +158,7 @@ export default function Home() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={handleGenerate}
                 className="
                   flex items-center gap-2 px-5 py-2
                   rounded-full bg-neutral-800 hover:bg-neutral-700 transition
@@ -166,9 +179,38 @@ export default function Home() {
           className="flex flex-wrap justify-center gap-3 mt-12"
         >
           {[
-            'Create a personal portfolio website',
-            'Build a calculator app',
-            'Create a todo list app'
+            `Create a modern personal portfolio website.
+
+Requirements:
+- Hero section with name, role, short introduction, and call-to-action
+- About section describing background and experience
+- Skills section displayed in a clean grid layout
+- Projects section with cards and hover effects
+- Contact section with a styled contact form
+- Fully responsive design for mobile, tablet, and desktop
+- Smooth CSS animations and clean typography
+- Use semantic HTML and organized CSS structure`,
+
+            `Build a calculator web application.
+
+Requirements:
+- Support basic arithmetic operations (add, subtract, multiply, divide)
+- Clear and user-friendly interface
+- Button-based input with keyboard support
+- Display the current expression and result clearly
+- Responsive layout for mobile and desktop
+- Clean JavaScript logic with proper error handling
+- Simple but modern visual design`,
+
+            `Create a todo list application.
+
+Requirements:
+- Add, edit, complete, and delete tasks
+- Mark tasks as completed with visual indicators
+- Persist tasks using browser local storage
+- Filter tasks (all, completed, pending)
+- Responsive and accessible UI
+- Well-structured JavaScript logic and clean styling`
           ].map(text => (
             <motion.button
               key={text}
@@ -181,7 +223,7 @@ export default function Home() {
                 hover:bg-neutral-800 transition
               "
             >
-              {text}
+              {text.split('\n')[0]}
             </motion.button>
           ))}
         </motion.div>
