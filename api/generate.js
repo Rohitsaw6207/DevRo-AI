@@ -1,7 +1,15 @@
+export const config = {
+  runtime: 'nodejs'
+}
+
 const GEMINI_ENDPOINT =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
+
+if (!GEMINI_API_KEY) {
+  throw new Error('GEMINI_API_KEY is not set on the server')
+}
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms))
 
@@ -18,7 +26,7 @@ async function callGemini(prompt, attempt = 1) {
       ],
       generationConfig: {
         temperature: 0.2,
-        maxOutputTokens: 8192
+        maxOutputTokens: 4096   // ⬅️ IMPORTANT: reduce from 8192
       }
     })
   })
@@ -32,6 +40,8 @@ async function callGemini(prompt, attempt = 1) {
   }
 
   if (!res.ok) {
+    const text = await res.text()
+    console.error('Gemini raw error:', text)
     throw new Error('Gemini API request failed')
   }
 
@@ -51,7 +61,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { prompt, stack } = req.body
+  const { prompt, stack } = req.body || {}
 
   if (!prompt || !stack) {
     return res.status(400).json({ error: 'Prompt and stack required' })
@@ -138,7 +148,7 @@ ${prompt}
       files
     })
   } catch (err) {
-    console.error(err)
+    console.error('❌ API ERROR:', err)
     return res.status(500).json({ error: err.message })
   }
 }
