@@ -111,3 +111,39 @@ html {
     transform: translate(50px, 50px) scale(1.05);
   }
 }
+
+
+/* =========================
+   GLOBAL DARK SCROLLBAR
+========================= */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #525252 #0a0a0a;
+}
+
+/* Chrome, Edge, Safari */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #0a0a0a; /* deep black */
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #525252; /* neutral grey */
+  border-radius: 8px;
+  border: 2px solid #0a0a0a; /* blends with track */
+  transition: background-color 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #737373; /* slightly lighter on hover */
+}
+
+*::-webkit-scrollbar-corner {
+  background: #0a0a0a;
+}
