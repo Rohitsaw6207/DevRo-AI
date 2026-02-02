@@ -1,22 +1,22 @@
 export async function generateProject({ prompt, stack }) {
-  const res = await fetch('/api/generate', {
+  const endpoint =
+    stack === 'react'
+      ? '/api/generate-react'
+      : '/api/generate-html'
+
+  const res = await fetch(endpoint, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ prompt, stack })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt })
   })
 
   if (!res.ok) {
-    let message = 'Generation failed'
+    let msg = `API error (${res.status})`
     try {
-      const err = await res.json()
-      message = err.error || message
-    } catch {
-      // response was not JSON (404 / HTML)
-      message = `API error (${res.status})`
-    }
-    throw new Error(message)
+      const e = await res.json()
+      msg = e.error || msg
+    } catch {}
+    throw new Error(msg)
   }
 
   return res.json()
