@@ -8,7 +8,8 @@ import {
   FiDownload,
   FiMenu,
   FiX,
-  FiLoader
+  FiLoader,
+  FiFile
 } from 'react-icons/fi'
 
 import Navbar from '../components/layout/Navbar'
@@ -33,6 +34,9 @@ export default function Coding() {
   const [project, setProject] = useState(null)
   const [error, setError] = useState(null)
 
+  // ===== CODE VIEW STATE =====
+  const [selectedFile, setSelectedFile] = useState(null)
+
   // SAFETY ON REFRESH
   useEffect(() => {
     if (location.state?.prompt) setPrompt(location.state.prompt)
@@ -47,10 +51,15 @@ export default function Coding() {
       setLoading(true)
       setError(null)
       setProject(null)
+      setSelectedFile(null)
       setActiveTab('preview')
 
       const result = await generateProject({ prompt, stack })
       setProject(result)
+
+      if (result?.files?.length) {
+        setSelectedFile(result.files[0])
+      }
     } catch (err) {
       console.error(err)
       setError(err.message || 'Generation failed')
@@ -62,7 +71,6 @@ export default function Coding() {
 
   /* =========================
      FULL HTML PREVIEW COMPOSER
-     (HTML + CSS + JS)
   ========================= */
 
   const htmlPreview = useMemo(() => {
@@ -170,18 +178,18 @@ ${html}
 
               {/* LOADING */}
               {loading && (
-                <div className="h-full flex items-center justify-center">
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="text-center space-y-4"
-                  >
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="h-full flex items-center justify-center"
+                >
+                  <div className="text-center space-y-4">
                     <FiLoader className="animate-spin mx-auto" size={32} />
                     <p className="text-sm text-neutral-400">
                       Building your project…
                     </p>
-                  </motion.div>
-                </div>
+                  </div>
+                </motion.div>
               )}
 
               {/* ERROR */}
@@ -193,37 +201,61 @@ ${html}
 
               {/* PREVIEW */}
               {!loading && project && activeTab === 'preview' && (
-                <motion.iframe
-                  key={htmlPreview}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.35 }}
-                  srcDoc={
-                    project.type === 'html'
-                      ? htmlPreview
-                      : project.files.find(f => f.path === project.entry)?.content
-                  }
-                  title="Preview"
-                  className="w-full h-full rounded-xl border border-neutral-800 bg-white"
-                />
+                project.type === 'html' ? (
+                  <motion.iframe
+                    key={htmlPreview}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35 }}
+                    srcDoc={htmlPreview}
+                    title="Preview"
+                    className="w-full h-full rounded-xl border border-neutral-800 bg-white"
+                  />
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-neutral-400 text-sm gap-2">
+                    <p>React preview is not available</p>
+                    <p className="italic text-neutral-500">Coming soon 🚧</p>
+                  </div>
+                )
               )}
 
               {/* CODE */}
               {!loading && project && activeTab === 'code' && (
-                <div className="space-y-4">
-                  {project.files.map(file => (
-                    <div
-                      key={file.path}
-                      className="rounded-xl border border-neutral-800 bg-neutral-900 p-4"
-                    >
-                      <div className="text-xs text-neutral-400 mb-2">
+                <div className="flex h-full rounded-xl border border-neutral-800 overflow-hidden">
+
+                  {/* FILE LIST */}
+                  <div className="w-64 bg-neutral-900 border-r border-neutral-800 p-3 space-y-1">
+                    {project.files.map(file => (
+                      <button
+                        key={file.path}
+                        onClick={() => setSelectedFile(file)}
+                        className={`
+                          w-full flex items-center gap-2 px-2 py-1 rounded text-sm
+                          ${
+                            selectedFile?.path === file.path
+                              ? 'bg-neutral-800 text-white'
+                              : 'text-neutral-400 hover:text-neutral-200'
+                          }
+                        `}
+                      >
+                        <FiFile size={14} />
                         {file.path}
-                      </div>
-                      <pre className="text-xs text-neutral-200 overflow-x-auto">
-                        {file.content}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* CODE VIEW */}
+                  <div className="flex-1 bg-neutral-950 p-4 overflow-auto">
+                    {selectedFile ? (
+                      <pre className="text-xs text-neutral-200 whitespace-pre-wrap">
+                        {selectedFile.content}
                       </pre>
-                    </div>
-                  ))}
+                    ) : (
+                      <div className="text-neutral-500 text-sm">
+                        Select a file to view its content
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
