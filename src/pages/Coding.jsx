@@ -1,207 +1,335 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { FiSend, FiFolder, FiFile, FiEye, FiCode, FiChevronDown, FiChevronRight } from 'react-icons/fi';
-import Navbar from '../components/layout/Navbar';
+import { useState, useEffect, useMemo } from 'react'
+import { useLocation } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  FiSend,
+  FiEye,
+  FiCode,
+  FiDownload,
+  FiMenu,
+  FiX,
+  FiLoader
+} from 'react-icons/fi'
 
-const Coding = () => {
-  const [prompt, setPrompt] = useState('');
-  const [activeTab, setActiveTab] = useState('preview');
-  const [expandedFolders, setExpandedFolders] = useState(['src']);
+import Navbar from '../components/layout/Navbar'
+import { generateProject } from '../services/geminiService'
+import { downloadZip } from '../services/zipService'
 
-  const toggleFolder = (folder) => {
-    setExpandedFolders(prev =>
-      prev.includes(folder)
-        ? prev.filter(f => f !== folder)
-        : [...prev, folder]
-    );
-  };
+export default function Coding() {
+  const location = useLocation()
 
-  const fileTree = [
-    { type: 'folder', name: 'src', children: [
-      { type: 'file', name: 'App.jsx' },
-      { type: 'file', name: 'index.jsx' },
-      { type: 'file', name: 'styles.css' },
-    ]},
-    { type: 'folder', name: 'public', children: [
-      { type: 'file', name: 'index.html' },
-    ]},
-    { type: 'file', name: 'package.json' },
-  ];
+  // ===== RECEIVE FROM HOME =====
+  const initialPrompt = location.state?.prompt || ''
+  const initialStack = location.state?.stack || 'html'
 
-  const renderFileTree = (items, level = 0) => {
-    return items.map((item, index) => (
-      <div key={index} style={{ paddingLeft: `${level * 16}px` }}>
-        {item.type === 'folder' ? (
-          <div>
-            <button
-              onClick={() => toggleFolder(item.name)}
-              className="flex items-center space-x-2 py-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded w-full text-left"
-              data-testid={`folder-${item.name}`}
-            >
-              {expandedFolders.includes(item.name) ? (
-                <FiChevronDown className="w-4 h-4" />
-              ) : (
-                <FiChevronRight className="w-4 h-4" />
-              )}
-              <FiFolder className="w-4 h-4 text-blue-600" />
-              <span className="text-sm">{item.name}</span>
-            </button>
-            {expandedFolders.includes(item.name) && item.children && (
-              <div>{renderFileTree(item.children, level + 1)}</div>
-            )}
-          </div>
-        ) : (
-          <button
-            className="flex items-center space-x-2 py-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded w-full text-left"
-            data-testid={`file-${item.name}`}
-          >
-            <FiFile className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-            <span className="text-sm">{item.name}</span>
-          </button>
-        )}
-      </div>
-    ));
-  };
+  const [prompt, setPrompt] = useState(initialPrompt)
+  const [stack, setStack] = useState(initialStack)
+
+  const [activeTab, setActiveTab] = useState('preview')
+  const [showPromptMobile, setShowPromptMobile] = useState(false)
+
+  // ===== GEMINI STATE =====
+  const [loading, setLoading] = useState(false)
+  const [project, setProject] = useState(null)
+  const [error, setError] = useState(null)
+
+  // SAFETY ON REFRESH
+  useEffect(() => {
+    if (location.state?.prompt) setPrompt(location.state.prompt)
+    if (location.state?.stack) setStack(location.state.stack)
+  }, [location.state])
+
+  // ===== GENERATE HANDLER =====
+  const handleGenerate = async () => {
+    if (!prompt.trim()) return
+
+    try {
+      setLoading(true)
+      setError(null)
+      setProject(null)
+      setActiveTab('preview')
+
+      const result = await generateProject({ prompt, stack })
+      setProject(result)
+    } catch (err) {
+      console.error(err)
+      setError(err.message || 'Generation failed')
+    } finally {
+      setLoading(false)
+      setShowPromptMobile(false)
+    }
+  }
+
+  /* =========================
+     FULL HTML PREVIEW COMPOSER
+     (HTML + CSS + JS)
+  ========================= */
+
+  const htmlPreview = useMemo(() => {
+    if (!project || project.type !== 'html') return ''
+
+    const html =
+      project.files.find(f => f.path === 'index.html')?.content || ''
+    const css =
+      project.files.find(f => f.path === 'style.css')?.content || ''
+    const js =
+      project.files.find(f => f.path === 'script.js')?.content || ''
+
+    return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>${css}</style>
+</head>
+<body>
+${html}
+<script>${js}</script>
+</body>
+</html>
+    `
+  }, [project])
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950" data-testid="coding-page">
+    <div className="min-h-screen bg-neutral-950 text-neutral-100">
       <Navbar />
 
-      <div className="pt-16 h-screen flex flex-col">
-        {/* Main Content */}
+      <div className="pt-20 h-screen flex flex-col">
         <div className="flex-1 flex overflow-hidden">
-          {/* Left Panel - Prompt/Chat UI */}
-          <div className="w-full md:w-1/3 border-r border-gray-200 dark:border-gray-800 flex flex-col" data-testid="prompt-panel">
-            {/* Chat Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg p-4"
-              >
-                <p className="text-sm font-medium mb-2">Welcome to DevRo! 👋</p>
-                <p className="text-sm opacity-90">
-                  Describe the website you want to build, and I'll generate the code for you.
-                </p>
-              </motion.div>
 
-              {/* Example prompts */}
-              <div className="space-y-2">
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Try these examples:</p>
-                <button
-                  onClick={() => setPrompt('Create a modern landing page for a SaaS product')}
-                  className="w-full text-left px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                  data-testid="example-prompt-1"
-                >
-                  Create a modern landing page for a SaaS product
-                </button>
-                <button
-                  onClick={() => setPrompt('Build a portfolio website with dark mode')}
-                  className="w-full text-left px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                  data-testid="example-prompt-2"
-                >
-                  Build a portfolio website with dark mode
-                </button>
-                <button
-                  onClick={() => setPrompt('Create a blog website with responsive design')}
-                  className="w-full text-left px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                  data-testid="example-prompt-3"
-                >
-                  Create a blog website with responsive design
-                </button>
-              </div>
-            </div>
-
-            {/* Input Area */}
-            <div className="p-4 border-t border-gray-200 dark:border-gray-800">
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Describe your website..."
-                  className="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900 dark:text-white"
-                  data-testid="prompt-input"
-                />
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-shadow"
-                  data-testid="send-prompt-button"
-                >
-                  <FiSend className="w-5 h-5" />
-                </motion.button>
-              </div>
-            </div>
+          {/* LEFT — PROMPT (DESKTOP) */}
+          <div className="hidden md:flex w-[360px] border-r border-neutral-800 flex-col">
+            <PromptPanel
+              prompt={prompt}
+              setPrompt={setPrompt}
+              stack={stack}
+              onSend={handleGenerate}
+              loading={loading}
+            />
           </div>
 
-          {/* Right Panel - Preview/Files */}
-          <div className="flex-1 flex flex-col" data-testid="preview-panel">
-            {/* Tabs */}
-            <div className="border-b border-gray-200 dark:border-gray-800">
-              <div className="flex">
-                <button
-                  onClick={() => setActiveTab('preview')}
-                  className={`flex items-center space-x-2 px-6 py-3 font-medium transition-colors ${
-                    activeTab === 'preview'
-                      ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-                  }`}
-                  data-testid="preview-tab"
-                >
-                  <FiEye className="w-4 h-4" />
-                  <span>Preview</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('files')}
-                  className={`flex items-center space-x-2 px-6 py-3 font-medium transition-colors ${
-                    activeTab === 'files'
-                      ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-                  }`}
-                  data-testid="files-tab"
-                >
-                  <FiCode className="w-4 h-4" />
-                  <span>Files</span>
-                </button>
+          {/* RIGHT — OUTPUT */}
+          <div className="flex-1 flex flex-col">
+
+            {/* TOP BAR */}
+            <div className="flex items-center justify-between border-b border-neutral-800 px-4">
+
+              {/* MOBILE PROMPT */}
+              <button
+                className="md:hidden p-2 text-neutral-300 hover:text-white"
+                onClick={() => setShowPromptMobile(true)}
+              >
+                <FiMenu size={20} />
+              </button>
+
+              {/* TABS */}
+              <div className="flex gap-1">
+                {[
+                  { key: 'preview', label: 'Preview', icon: FiEye },
+                  { key: 'code', label: 'Code', icon: FiCode }
+                ].map(tab => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`
+                      flex items-center gap-2 px-4 py-3 text-sm transition
+                      ${
+                        activeTab === tab.key
+                          ? 'text-white border-b-2 border-white'
+                          : 'text-neutral-400 hover:text-neutral-200'
+                      }
+                    `}
+                  >
+                    <tab.icon size={14} />
+                    <span className="hidden sm:inline">{tab.label}</span>
+                  </button>
+                ))}
               </div>
+
+              {/* DOWNLOAD BUTTON */}
+              <button
+                disabled={!project}
+                onClick={() => downloadZip(project.files)}
+                className={`
+                  p-2 rounded-lg transition
+                  ${
+                    project
+                      ? 'text-neutral-200 hover:text-white hover:bg-neutral-800'
+                      : 'text-neutral-600 cursor-not-allowed'
+                  }
+                `}
+                title="Download ZIP"
+              >
+                <FiDownload size={18} />
+              </button>
             </div>
 
-            {/* Tab Content */}
-            <div className="flex-1 overflow-auto p-4">
-              {activeTab === 'preview' ? (
-                <div className="h-full flex items-center justify-center" data-testid="preview-content">
-                  <div className="text-center space-y-4">
-                    <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto">
-                      <FiEye className="w-10 h-10 text-white" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                      Preview Area
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 max-w-md">
-                      Enter a prompt to generate your website, and see the live preview here
+            {/* OUTPUT AREA */}
+            <div className="flex-1 overflow-auto p-6">
+
+              {/* LOADING */}
+              {loading && (
+                <div className="h-full flex items-center justify-center">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center space-y-4"
+                  >
+                    <FiLoader className="animate-spin mx-auto" size={32} />
+                    <p className="text-sm text-neutral-400">
+                      Building your project…
                     </p>
-                  </div>
+                  </motion.div>
                 </div>
-              ) : (
-                <div className="h-full" data-testid="files-content">
-                  <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
-                    <div className="flex items-center space-x-2 mb-4">
-                      <FiFolder className="w-5 h-5 text-blue-600" />
-                      <h3 className="font-semibold text-gray-900 dark:text-white">File Structure</h3>
+              )}
+
+              {/* ERROR */}
+              {error && (
+                <div className="text-center text-red-400 text-sm">
+                  {error}
+                </div>
+              )}
+
+              {/* PREVIEW */}
+              {!loading && project && activeTab === 'preview' && (
+                <motion.iframe
+                  key={htmlPreview}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35 }}
+                  srcDoc={
+                    project.type === 'html'
+                      ? htmlPreview
+                      : project.files.find(f => f.path === project.entry)?.content
+                  }
+                  title="Preview"
+                  className="w-full h-full rounded-xl border border-neutral-800 bg-white"
+                />
+              )}
+
+              {/* CODE */}
+              {!loading && project && activeTab === 'code' && (
+                <div className="space-y-4">
+                  {project.files.map(file => (
+                    <div
+                      key={file.path}
+                      className="rounded-xl border border-neutral-800 bg-neutral-900 p-4"
+                    >
+                      <div className="text-xs text-neutral-400 mb-2">
+                        {file.path}
+                      </div>
+                      <pre className="text-xs text-neutral-200 overflow-x-auto">
+                        {file.content}
+                      </pre>
                     </div>
-                    <div className="space-y-1 text-gray-900 dark:text-white">
-                      {renderFileTree(fileTree)}
-                    </div>
-                  </div>
+                  ))}
+                </div>
+              )}
+
+              {/* EMPTY */}
+              {!loading && !project && (
+                <div className="h-full flex items-center justify-center text-neutral-500 text-sm">
+                  Generate a project to see output
                 </div>
               )}
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-};
 
-export default Coding;
+      {/* MOBILE PROMPT */}
+      <AnimatePresence>
+        {showPromptMobile && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm md:hidden"
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ duration: 0.3 }}
+              className="absolute bottom-0 left-0 right-0 bg-neutral-950 border-t border-neutral-800 rounded-t-2xl"
+            >
+              <div className="flex items-center justify-between p-4 border-b border-neutral-800">
+                <h3 className="font-medium">Your Prompt</h3>
+                <button onClick={() => setShowPromptMobile(false)}>
+                  <FiX size={20} />
+                </button>
+              </div>
+
+              <PromptPanel
+                prompt={prompt}
+                setPrompt={setPrompt}
+                stack={stack}
+                onSend={handleGenerate}
+                loading={loading}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+/* =========================
+   PROMPT PANEL (UNCHANGED)
+========================= */
+
+function PromptPanel({ prompt, setPrompt, stack, onSend, loading }) {
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto px-4 py-5">
+        {prompt ? (
+          <div className="rounded-xl bg-neutral-900 border border-neutral-800 p-4 text-sm text-neutral-300 space-y-2">
+            <div className="text-xs text-neutral-500">
+              Stack:{' '}
+              <span className="text-neutral-300">
+                {stack.toUpperCase()}
+              </span>
+            </div>
+            <div>{prompt}</div>
+          </div>
+        ) : (
+          <div className="h-full flex items-center justify-center text-neutral-500 text-sm">
+            Describe what you want to build
+          </div>
+        )}
+      </div>
+
+      <div className="border-t border-neutral-800 p-4">
+        <div className="flex gap-2">
+          <input
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder={`Describe your ${stack.toUpperCase()} project…`}
+            className="
+              flex-1 px-4 py-3 rounded-xl
+              bg-neutral-900 border border-neutral-800
+              outline-none text-sm
+              placeholder:text-neutral-500
+            "
+          />
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onSend}
+            disabled={loading}
+            className="
+              px-4 rounded-xl
+              bg-neutral-800 hover:bg-neutral-700
+              transition flex items-center justify-center
+              disabled:opacity-50
+            "
+          >
+            <FiSend size={18} />
+          </motion.button>
+        </div>
+      </div>
+    </div>
+  )
+}
