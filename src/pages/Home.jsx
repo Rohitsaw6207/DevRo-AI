@@ -181,36 +181,35 @@ export default function Home() {
           {[
             `Create a modern personal portfolio website.
 
-Requirements:
-- Hero section with name, role, short introduction, and call-to-action
-- About section describing background and experience
-- Skills section displayed in a clean grid layout
-- Projects section with cards and hover effects
-- Contact section with a styled contact form
-- Fully responsive design for mobile, tablet, and desktop
-- Smooth CSS animations and clean typography
-- Use semantic HTML and organized CSS structure`,
+          Requirements:
+          - Hero section with name, role, and call-to-action
+          - About section with background and experience
+          - Skills displayed in a clean grid
+          - Projects section with cards and hover effects
+          - Contact section with a styled form
+          - Fully responsive with smooth animations
+          - Clean typography and semantic HTML`,
 
             `Build a calculator web application.
 
-Requirements:
-- Support basic arithmetic operations (add, subtract, multiply, divide)
-- Clear and user-friendly interface
-- Button-based input with keyboard support
-- Display the current expression and result clearly
-- Responsive layout for mobile and desktop
-- Clean JavaScript logic with proper error handling
-- Simple but modern visual design`,
+            Requirements:
+            - Basic arithmetic operations
+            - Clear and user-friendly interface
+            - Button input with keyboard support
+            - Display expression and result
+            - Responsive layout
+            - Clean JavaScript logic and modern styling`,
 
             `Create a todo list application.
 
-Requirements:
-- Add, edit, complete, and delete tasks
-- Mark tasks as completed with visual indicators
-- Persist tasks using browser local storage
-- Filter tasks (all, completed, pending)
-- Responsive and accessible UI
-- Well-structured JavaScript logic and clean styling`
+            Requirements:
+            - Add, edit, complete, and delete tasks
+            - Visual indicator for completed tasks
+            - Save tasks using local storage
+            - Filter tasks (all, completed, pending)
+            - Responsive and accessible UI
+            - Clean structure and styling`
+            
           ].map(text => (
             <motion.button
               key={text}
