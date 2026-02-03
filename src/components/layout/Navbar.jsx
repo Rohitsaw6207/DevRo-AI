@@ -9,7 +9,6 @@ const Navbar = () => {
   const navigate = useNavigate()
   const { isAuthenticated, profile, logout } = useAuth()
 
-  // ✅ FIXED LOGO LOGIC
   const handleLogoClick = () => {
     if (isAuthenticated) {
       navigate('/home')
@@ -38,17 +37,17 @@ const Navbar = () => {
 
   return (
     <motion.nav
-      initial={{ y: -80 }}
+      initial={{ y: -90 }}
       animate={{ y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.45, ease: 'easeOut' }}
       className="
         fixed top-0 left-0 right-0 z-50
-        bg-neutral-950/80 backdrop-blur
+        bg-neutral-950/85 backdrop-blur-xl
         border-b border-neutral-900
-        py-3
+        py-3 sm:py-4
       "
     >
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between">
 
           {/* LEFT — LOGO */}
@@ -59,18 +58,18 @@ const Navbar = () => {
             animate="rest"
             className="relative cursor-pointer"
           >
-            {/* Glow */}
+            {/* 🔽 SOFT GREY GLOW (NOT WHITE) */}
             <motion.div
               variants={{
-                rest: { opacity: 0, scale: 0.9 },
-                hover: { opacity: 0.25, scale: 1.2 }
+                rest: { opacity: 0.08, scale: 0.98 },
+                hover: { opacity: 0.16, scale: 1.06 }
               }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
               className="
                 absolute inset-0 -z-10
                 rounded-full
-                bg-neutral-500
-                blur-xl
+                bg-neutral-300
+                blur-lg
               "
             />
 
@@ -80,40 +79,45 @@ const Navbar = () => {
               alt="DevRo AI"
               variants={{
                 rest: { scale: 1 },
-                hover: { scale: 1.06 }
+                hover: { scale: 1.03 }
               }}
-              transition={{ type: 'spring', stiffness: 260 }}
-              className="h-10 relative z-10"
+              transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+              className="
+                h-11 sm:h-12 md:h-14
+                relative z-10
+                select-none
+              "
             />
           </motion.div>
 
           {/* RIGHT — AUTH */}
           {!isAuthenticated ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-4">
               <button
                 onClick={() => navigate('/login')}
-                className="px-4 py-2 text-sm text-neutral-300 hover:text-neutral-100 transition"
+                className="px-3 sm:px-4 py-2 text-sm text-neutral-300 hover:text-neutral-100 transition"
               >
                 Login
               </button>
 
               <motion.button
                 onClick={() => navigate('/signup')}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.96 }}
                 className="px-4 py-2 rounded-md bg-neutral-100 text-neutral-900 text-sm font-medium"
               >
                 Sign up
               </motion.button>
             </div>
           ) : (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
 
-              {/* UPGRADE PLAN */}
               <button
                 onClick={() => navigate('/pricing')}
                 className="
-                  px-3 py-1 rounded-md
+                  hidden sm:inline-flex
+                  px-3 py-1.5
+                  rounded-md
                   border border-neutral-800
                   text-neutral-400
                   hover:text-neutral-100
@@ -125,11 +129,11 @@ const Navbar = () => {
                 Upgrade Plan
               </button>
 
-              {/* Logout */}
               <button
                 onClick={handleLogout}
                 className="
-                  px-3 py-1 rounded-md
+                  px-3 py-1.5
+                  rounded-md
                   border border-neutral-800
                   text-neutral-400
                   hover:text-neutral-100
@@ -140,17 +144,16 @@ const Navbar = () => {
                 "
               >
                 <LogOut size={14} />
-                Logout
+                <span className="hidden sm:inline">Logout</span>
               </button>
 
-              {/* Avatar */}
               <button onClick={() => navigate('/profile')}>
                 <motion.img
                   src={getAvatar()}
                   alt="Profile"
-                  whileHover={{ scale: 1.08 }}
+                  whileHover={{ scale: 1.05 }}
                   className="
-                    w-11 h-11
+                    w-10 h-10 sm:w-11 sm:h-11
                     rounded-full
                     border border-neutral-700
                     hover:border-neutral-500
