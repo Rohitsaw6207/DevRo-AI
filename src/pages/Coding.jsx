@@ -13,7 +13,7 @@ import {
 } from 'react-icons/fi'
 
 import Navbar from '../components/layout/Navbar'
-import { generateProject } from '../services/geminiService'
+import { generateProject } from '../services/aiService'
 import { downloadZip } from '../services/zipService'
 
 export default function Coding() {
