@@ -1,15 +1,23 @@
+import { GoogleGenAI } from "@google/genai";
 import Groq from "groq-sdk";
 
 /* =========================
-   CONFIG
+   MODELS
 ========================= */
 
-const MODEL = "llama-3.1-8b-instant";
+const GEMINI_MODEL = "gemini-2.5-flash";
+const GROQ_MODEL = "llama-3.1-8b-instant";
 
 /* =========================
-   CLIENT (BROWSER SAFE MODE)
+   CLIENTS
 ========================= */
 
+// Gemini → HTML
+const gemini = new GoogleGenAI({
+  apiKey: import.meta.env.VITE_GEMINI_API_KEY_HTML
+});
+
+// Groq → React (browser allowed intentionally)
 const groq = new Groq({
   apiKey: import.meta.env.VITE_GROQ_API_KEY,
   dangerouslyAllowBrowser: true
@@ -19,18 +27,23 @@ const groq = new Groq({
    UTILITIES
 ========================= */
 
-// Prevent hitting TPM too fast
+// Rate-limit safety
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Extract assistant text
-function getText(res) {
+// Gemini text extractor
+function getGeminiText(res) {
+  return res?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+}
+
+// Groq text extractor
+function getGroqText(res) {
   return res?.choices?.[0]?.message?.content?.trim() || "";
 }
 
 // Extract HTML from markdown
-function extractCode(text) {
+function extractHTML(text) {
   const match = text.match(/```(?:html)?\n?([\s\S]*?)```/i);
   return match ? match[1].trim() : text.trim();
 }
@@ -41,7 +54,7 @@ function extractJSON(text) {
   const end = text.lastIndexOf("}");
 
   if (start === -1 || end === -1) {
-    console.error("RAW AI OUTPUT:\n", text);
+    console.error("RAW OUTPUT:\n", text);
     throw new Error("Invalid JSON from AI");
   }
 
@@ -49,65 +62,57 @@ function extractJSON(text) {
 }
 
 /* =========================
-   HTML GENERATION (SINGLE FILE)
+   HTML → GEMINI (PREVIEW)
 ========================= */
 
 async function generateHTML(prompt) {
-  const res = await groq.chat.completions.create({
-    model: MODEL,
-    temperature: 0.35,
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are a senior frontend developer. CSS is mandatory."
-      },
+  const res = await gemini.models.generateContent({
+    model: GEMINI_MODEL,
+    contents: [
       {
         role: "user",
-        content: `
+        parts: [
+          {
+            text: `
+You are a senior frontend developer.
+
 TASK:
-Generate a COMPLETE single-file website.
+Generate a COMPLETE modern website in ONE HTML FILE.
 
-MANDATORY RULES (FAIL IF BROKEN):
-- MUST include <style> with real CSS
-- MUST use Flexbox or Grid
-- MUST be responsive
-- MUST include hover/transition animations
-- HTML-only output is INVALID
-
-TECH RULES:
-- One HTML file only
-- CSS inside <style>
-- JS inside <script> if needed
+MANDATORY:
+- HTML + CSS + JS in the same file
+- CSS inside <style> (REQUIRED)
+- Responsive (Flexbox/Grid)
+- Hover effects + transitions
+- Clean modern UI
 - No frameworks
-- No libraries
+
+OUTPUT RULES:
+- Return ONLY code
+- Wrap in \`\`\`html\`\`\`
 - No explanations
 
-OUTPUT:
-- Return ONLY code
-- Wrap everything in \`\`\`html\`\`\`
-
-IDEA:
+PROJECT IDEA:
 ${prompt}
 `
+          }
+        ]
       }
     ]
   });
 
-  const raw = getText(res);
-  if (!raw) throw new Error("Empty response from AI");
+  const raw = getGeminiText(res);
+  if (!raw) throw new Error("Empty response from Gemini");
 
-  const code = extractCode(raw);
+  const code = extractHTML(raw);
 
-  // Hard safety check
   if (!code.includes("<style")) {
-    throw new Error("CSS missing. Try again.");
+    throw new Error("CSS missing in HTML output");
   }
 
   return {
     type: "html",
     entry: "index.html",
-    description: "",
     files: [
       {
         path: "index.html",
@@ -118,24 +123,21 @@ ${prompt}
 }
 
 /* =========================
-   REACT STRUCTURE
+   REACT → GROQ (NO PREVIEW)
 ========================= */
 
 async function getReactStructure(prompt) {
   const res = await groq.chat.completions.create({
-    model: MODEL,
-    temperature: 0.3,
+    model: GROQ_MODEL,
+    temperature: 0.25,
     messages: [
       {
         role: "system",
-        content:
-          "You are a senior React developer. Return STRICT JSON only."
+        content: "Return STRICT valid JSON only."
       },
       {
         role: "user",
         content: `
-Return ONLY valid JSON.
-
 FORMAT:
 {
   "entry": "index.html",
@@ -156,22 +158,17 @@ ${prompt}
     ]
   });
 
-  return extractJSON(getText(res));
+  return extractJSON(getGroqText(res));
 }
-
-/* =========================
-   REACT FILE CONTENT
-========================= */
 
 async function getReactFile(path, prompt) {
   const res = await groq.chat.completions.create({
-    model: MODEL,
-    temperature: 0.3,
+    model: GROQ_MODEL,
+    temperature: 0.25,
     messages: [
       {
         role: "system",
-        content:
-          "You are a senior React developer. Return RAW file content only."
+        content: "Return RAW file content only."
       },
       {
         role: "user",
@@ -190,7 +187,7 @@ ${prompt}
     ]
   });
 
-  const text = getText(res);
+  const text = getGroqText(res);
   if (!text) throw new Error(`Empty content for ${path}`);
 
   return text.trim();
@@ -205,17 +202,17 @@ export async function generateProject({ prompt, stack }) {
     throw new Error("Prompt and stack required");
   }
 
-  /* ---------- HTML ---------- */
+  // HTML → Gemini
   if (stack === "html") {
     return generateHTML(prompt);
   }
 
-  /* ---------- REACT (RATE SAFE) ---------- */
+  // React → Groq (rate-safe)
   const structure = await getReactStructure(prompt);
   const files = [];
 
   for (const path of structure.files) {
-    await sleep(400); // 🔒 TPM protection
+    await sleep(350); // TPM protection
     const content = await getReactFile(path, prompt);
     files.push({ path, content });
   }
@@ -223,7 +220,6 @@ export async function generateProject({ prompt, stack }) {
   return {
     type: "react",
     entry: structure.entry,
-    description: "",
     files
   };
 }
