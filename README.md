@@ -11,48 +11,65 @@
 
 <p align="center">
   Deployed on <b>Vercel</b><br/>
-  https://devro-ai.vercel.app/
+  <a href="https://devro-ai.vercel.app/">https://devro-ai.vercel.app/</a>
 </p>
 
 ---
 
 <h2 align="center">🧠 How DevRo AI Works</h2>
 
-DevRo AI uses **two different AI engines**, each chosen for what it does best:
+<p align="center">
+  DevRo AI uses <b>two different AI engines</b>, each chosen for what it does best:
+</p>
 
-| Stack | AI Engine | Why |
-|------|---------|-----|
-| HTML | Gemini 2.5 Flash | Strong UI, CSS, animations, live preview |
-| React | Groq (llama-3.1-8b-instant) | Fast, scalable, code-only generation |
+<table align="center">
+  <tr>
+    <th>Stack</th>
+    <th>AI Engine</th>
+    <th>Why</th>
+  </tr>
+  <tr>
+    <td align="center">HTML</td>
+    <td align="center">Gemini 2.5 Flash</td>
+    <td align="center">Strong UI, CSS, animations, live preview</td>
+  </tr>
+  <tr>
+    <td align="center">React</td>
+    <td align="center">Groq (llama-3.1-8b-instant)</td>
+    <td align="center">Fast, scalable, code-only generation</td>
+  </tr>
+</table>
 
 ---
 
 <h2 align="center">✨ Key Features</h2>
 
-- 🔤 Prompt → Project generation  
-- 🌐 Single-file HTML websites with live preview  
-- ⚛️ Full React + Vite project structure  
-- 📁 Real downloadable file trees (ZIP)  
-- 🔐 Authentication & plan-based access  
-- 💳 Razorpay payment integration (test mode)  
+<p align="center">
+  🔤 Prompt → Project generation<br/>
+  🌐 Single-file HTML websites with live preview<br/>
+  ⚛️ Full React + Vite project structure<br/>
+  📁 Real downloadable file trees (ZIP)<br/>
+  🔐 Authentication & plan-based access<br/>
+  💳 Razorpay payment integration (test mode)
+</p>
 
 ---
 
 <h2 align="center">🖼️ Application Preview</h2>
 
-### 🔹 Main Pages
+<h3 align="center">🔹 Main Pages</h3>
 <p align="center">
   <img src="public/preview/landing-page.png" width="48%" />
   <img src="public/preview/home-page.png" width="48%" />
 </p>
 
-### 🔹 Coding Experience
+<h3 align="center">🔹 Coding Experience</h3>
 <p align="center">
   <img src="public/preview/coding-page-preview.png" width="48%" />
   <img src="public/preview/coding-page-code.png" width="48%" />
 </p>
 
-### 🔹 User & Pricing
+<h3 align="center">🔹 User & Pricing</h3>
 <p align="center">
   <img src="public/preview/pricing-page.png" width="48%" />
   <img src="public/preview/profile-page.png" width="48%" />
@@ -62,45 +79,44 @@ DevRo AI uses **two different AI engines**, each chosen for what it does best:
 
 <h2 align="center">🛠️ Tech Stack</h2>
 
-<p align="center">
-  <table align="center">
-    <tr>
-      <th>Frontend</th>
-      <th>AI & APIs</th>
-      <th>Auth & Payments</th>
-      <th>Deployment</th>
-    </tr>
-    <tr>
-      <td align="center">
-        React + Vite<br/>
-        Tailwind CSS<br/>
-        Framer Motion
-      </td>
-      <td align="center">
-        Gemini 2.5 Flash<br/>
-        Groq API
-      </td>
-      <td align="center">
-        Firebase Auth<br/>
-        Razorpay (test mode)
-      </td>
-      <td align="center">
-        Vercel<br/>
-        Environment Variables
-      </td>
-    </tr>
-  </table>
-</p>
-
+<table align="center">
+  <tr>
+    <th>Frontend</th>
+    <th>AI & APIs</th>
+    <th>Auth & Payments</th>
+    <th>Deployment</th>
+  </tr>
+  <tr>
+    <td align="center">
+      React + Vite<br/>
+      Tailwind CSS<br/>
+      Framer Motion
+    </td>
+    <td align="center">
+      Gemini 2.5 Flash<br/>
+      Groq API
+    </td>
+    <td align="center">
+      Firebase Auth<br/>
+      Razorpay (test mode)
+    </td>
+    <td align="center">
+      Vercel<br/>
+      Environment Variables
+    </td>
+  </tr>
+</table>
 
 ---
 
 <h2 align="center">🧩 Architecture Highlights</h2>
 
-- AI responsibilities are **clearly separated**
-- Live preview only where technically valid
-- Rate-limit-safe multi-step generation
-- Built around real developer workflows
+<p align="center">
+  AI responsibilities are <b>clearly separated</b><br/>
+  Live preview only where technically valid<br/>
+  Rate-limit-safe multi-step generation<br/>
+  Built around real developer workflows
+</p>
 
 ---
 
