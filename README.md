@@ -62,20 +62,36 @@ DevRo AI uses **two different AI engines**, each chosen for what it does best:
 
 <h2 align="center">🛠️ Tech Stack</h2>
 
-### 🔹 Core Technologies
+<p align="center">
+  <table align="center">
+    <tr>
+      <th>Frontend</th>
+      <th>AI & APIs</th>
+      <th>Auth & Payments</th>
+      <th>Deployment</th>
+    </tr>
+    <tr>
+      <td align="center">
+        React + Vite<br/>
+        Tailwind CSS<br/>
+        Framer Motion
+      </td>
+      <td align="center">
+        Gemini 2.5 Flash<br/>
+        Groq API
+      </td>
+      <td align="center">
+        Firebase Auth<br/>
+        Razorpay (test mode)
+      </td>
+      <td align="center">
+        Vercel<br/>
+        Environment Variables
+      </td>
+    </tr>
+  </table>
+</p>
 
-| Frontend | AI & APIs |
-|---------|----------|
-| React + Vite | Gemini 2.5 Flash |
-| Tailwind CSS | Groq API |
-| Framer Motion | — |
-
-### 🔹 Platform & Services
-
-| Auth & Payments | Deployment |
-|----------------|-----------|
-| Firebase Auth | Vercel |
-| Razorpay (test mode) | Environment Variables |
 
 ---
 
