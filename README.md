@@ -1,149 +1,129 @@
-# 🚀 DevRo AI
+#  DevRo AI — Prompt-to-Code Platform
 
-DevRo AI is an AI-powered web platform that converts ideas into **production-ready projects**.  
-Users describe what they want to build, and DevRo AI generates either:
-
-- a **fully styled HTML website with live preview**, or  
-- a **complete React project structure** ready to download and run locally.
-
-The goal is simple: **turn ideas into real code, fast.**
+<p align="center">
+  DevRo AI is an AI-powered web platform that converts natural language prompts into
+  <b>fully styled HTML websites</b> or <b>complete React project structures</b>.
+</p>
 
 ---
 
-## 🌐 Live Preview
+## 🌐 Live Deployment
 
-> Deployed on Vercel  
-https://devro-ai.vercel.app/
+<p align="center">
+  Deployed on <b>Vercel</b> https://devro-ai.vercel.app/
+</p>
 
 ---
 
 ## 🧠 How DevRo AI Works
 
-DevRo AI uses **two different AI engines**, each optimized for a specific task:
+DevRo AI uses **two different AI engines**, each chosen for what it does best:
 
-| Stack | AI Used | Reason |
-|------|--------|--------|
-| HTML | **Gemini 2.5 Flash** | High-quality UI, CSS, animations, live preview |
-| React | **Groq (llama-3.1-8b-instant)** | Fast, scalable, code-only generation |
+| Stack | AI Engine | Why |
+|------|---------|-----|
+| HTML | Gemini 2.5 Flash | Strong UI, CSS, animations, live preview |
+| React | Groq (llama-3.1-8b-instant) | Fast, scalable, code-only generation |
 
-This split avoids weak UI output and prevents broken previews.
 
 ---
 
 ## ✨ Key Features
 
-- 🔤 **Prompt-to-Project Generation**  
-  Describe your idea in plain English.
-
-- 🌐 **HTML Website Generator**
-  - Single-file HTML (HTML + CSS + JS)
-  - Responsive layout
-  - Modern styling and animations
-  - Live preview inside the app
-
-- ⚛️ **React Project Generator**
-  - Full Vite project structure
-  - Clean file separation
-  - Downloadable ZIP
-
-- 📁 **Real File Structure**
-  - Not snippets
-  - Not demos
-  - Actual project files you can run
-
-- 🔐 **Authentication & Plans**
-  - Firebase Authentication
-  - Plan-based feature access
-  - React generation gated behind Pro plan
-
-- 💳 **Payment Integration**
-  - Razorpay (test mode)
-  - Ready for monetization
+- 🔤 Prompt → Project generation  
+- 🌐 Single-file HTML websites with live preview  
+- ⚛️ Full React + Vite project structure  
+- 📁 Real downloadable file trees (ZIP)  
+- 🔐 Authentication & plan-based access  
+- 💳 Razorpay payment integration (test mode)  
 
 ---
 
-## 🖼️ Application Screenshots
+## 🖼️ Application Preview
 
-### Landing Page
-![Landing Page](public/preview/landing-page.png)
+### 🔹 Main Pages
+<p align="center">
+  <img src="public/preview/landing-page.png" width="48%" />
+  <img src="public/preview/home-page.png" width="48%" />
+</p>
 
-### Home Page
-![Home Page](public/preview/home-page.png)
+### 🔹 Coding Experience
+<p align="center">
+  <img src="public/preview/coding-page-preview.png" width="48%" />
+  <img src="public/preview/coding-page-code.png" width="48%" />
+</p>
 
-### Coding Page – Preview Mode
-![Coding Preview](public/preview/coding-page-preview.png)
-
-### Coding Page – Code View
-![Coding Code](public/preview/coding-page-code.png)
-
-### Pricing Page
-![Pricing Page](public/preview/pricing-page.png)
-
-### Profile Page
-![Profile Page](public/preview/profile-page.png)
+### 🔹 User & Pricing
+<p align="center">
+  <img src="public/preview/pricing-page.png" width="48%" />
+  <img src="public/preview/profile-page.png" width="48%" />
+</p>
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- React + Vite
-- Tailwind CSS
-- Framer Motion
+
+| Technology | Purpose |
+|----------|--------|
+| React + Vite | UI & application structure |
+| Tailwind CSS | Styling & responsiveness |
+| Framer Motion | Animations & transitions |
 
 ### AI & APIs
-- Google Gemini 2.5 Flash 
-- Groq API
 
-### Auth & Services
-- Firebase Authentication
-- Razorpay (test mode)
+| Service | Usage |
+|------|------|
+| Gemini 2.5 Flash | HTML website generation |
+| Groq API | React project generation |
+
+### Auth & Payments
+
+| Service | Purpose |
+|------|--------|
+| Firebase Auth | Authentication & user profiles |
+| Razorpay | Subscription & payments (test mode) |
 
 ### Deployment
-- Vercel
-- Environment-based configuration
+
+| Platform | Usage |
+|--------|------|
+| Vercel | Hosting & SPA routing |
+| Environment Variables | Secure config |
 
 ---
 
 ## 🧩 Architecture Highlights
 
-- AI usage is **intentionally split by responsibility**
+- AI responsibilities are **clearly separated**
 - Live preview only where technically valid
-- No fake or broken previews
 - Rate-limit-safe multi-step generation
-- Designed around real developer workflows
+- Built around real developer workflows
 
 ---
 
-## ⚠️ Known Limitations
+## ⚠️ Current Limitations
 
-- React preview is currently unavailable  
-  _(React projects must be downloaded and run locally)_
+- React live preview is not available yet  
 
-- Free AI quotas are limited by provider policies
-
----
-
-## 🚧 Future Improvements
-
-- React live preview
-- Project history & caching
-- AI usage optimization
-- Export to GitHub
-- Custom templates
+- AI usage depends on provider quota limits
 
 ---
 
-## 🧑‍💻 Author
+## 👤 Author
 
-**Rohit Kumar**  
- Developer & Builder
+<p align="center">
+  <b>Rohit Kumar</b><br/>
+   Developer & Builder
+</p>
 
-- GitHub: https://github.com/Rohitsaw6207  
-- LinkedIn: https://www.linkedin.com/in/rohit-kumar-saw6207/
+<p align="center">
+  <a href="https://github.com/Rohitsaw6207">GitHub</a> ·
+  <a href="https://www.linkedin.com/in/rohit-kumar-saw6207/">LinkedIn</a>
+</p>
 
 ---
 
 ## 📜 License
 
-This project is licensed for educational and portfolio purposes.
+This project is built for learning, experimentation, and portfolio use.
