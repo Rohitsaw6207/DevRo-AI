@@ -71,8 +71,9 @@
 
 <h3 align="center">🔹 User & Pricing</h3>
 <p align="center">
-  <img src="public/preview/pricing-page.png" width="48%" />
-  <img src="public/preview/profile-page.png" width="48%" />
+  <img src="public/preview/pricing-page.png" width="32%" />
+  <img src="public/preview/profile-page.png" width="32%" />
+  <img src="public/preview/razorpay-payment.png" width="32%" />
 </p>
 
 ---
